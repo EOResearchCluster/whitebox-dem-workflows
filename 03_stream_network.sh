@@ -8,7 +8,7 @@
 # ============================================================================
 
 # Configuration - use command-line args or defaults
-DEM="${1:-DEM5_bbox_Dettelbach.tif}"
+DEM="${1:-dem.tif}"
 HYDRO_DIR="${2:-outputs/01_hydrology}"
 OUTPUT_DIR="${3:-outputs/03_stream_network}"
 

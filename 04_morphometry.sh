@@ -7,7 +7,7 @@
 # ============================================================================
 
 # Configuration - use command-line args or defaults
-DEM="${1:-DEM5_bbox_Dettelbach.tif}"
+DEM="${1:-dem.tif}"
 OUTPUT_DIR="${2:-outputs/04_morphometry}"
 GEOMORPH_DIR="${3:-outputs/02_geomorphometry}"
 

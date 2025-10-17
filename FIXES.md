@@ -60,21 +60,21 @@ whitebox_tools -r=ElevationAboveStream \
 #### 01_hydrology.sh
 ```bash
 # Usage: ./01_hydrology.sh [DEM_FILE] [OUTPUT_DIR]
-DEM="${1:-DEM5_bbox_Dettelbach.tif}"
+DEM="${1:-dem.tif}"
 OUTPUT_DIR="${2:-outputs/01_hydrology}"
 ```
 
 #### 02_geomorphometry.sh
 ```bash
 # Usage: ./02_geomorphometry.sh [DEM_FILE] [OUTPUT_DIR]
-DEM="${1:-DEM5_bbox_Dettelbach.tif}"
+DEM="${1:-dem.tif}"
 OUTPUT_DIR="${2:-outputs/02_geomorphometry}"
 ```
 
 #### 03_stream_network.sh
 ```bash
 # Usage: ./03_stream_network.sh [DEM_FILE] [HYDRO_DIR] [OUTPUT_DIR]
-DEM="${1:-DEM5_bbox_Dettelbach.tif}"
+DEM="${1:-dem.tif}"
 HYDRO_DIR="${2:-outputs/01_hydrology}"
 OUTPUT_DIR="${3:-outputs/03_stream_network}"
 ```
@@ -82,7 +82,7 @@ OUTPUT_DIR="${3:-outputs/03_stream_network}"
 #### 04_morphometry.sh
 ```bash
 # Usage: ./04_morphometry.sh [DEM_FILE] [OUTPUT_DIR] [GEOMORPH_DIR]
-DEM="${1:-DEM5_bbox_Dettelbach.tif}"
+DEM="${1:-dem.tif}"
 OUTPUT_DIR="${2:-outputs/04_morphometry}"
 GEOMORPH_DIR="${3:-outputs/02_geomorphometry}"
 ```
@@ -90,7 +90,7 @@ GEOMORPH_DIR="${3:-outputs/02_geomorphometry}"
 #### run_all_workflows.sh
 ```bash
 # Usage: ./run_all_workflows.sh [DEM_FILE]
-DEM="${1:-DEM5_bbox_Dettelbach.tif}"
+DEM="${1:-dem.tif}"
 ```
 
 ### 4. No Input Validation
@@ -112,7 +112,7 @@ fi
 
 ### Default Usage (Dettelbach DEM)
 ```bash
-# Use default DEM (DEM5_bbox_Dettelbach.tif)
+# Use default DEM (dem.tif)
 ./01_hydrology.sh
 ./02_geomorphometry.sh
 ./03_stream_network.sh
@@ -148,8 +148,8 @@ fi
 # Custom DEM
 ./run_workflows.py --all --dem my_custom_dem.tif
 
-# Parallel execution with custom DEM
-./run_workflows.py --parallel --dem my_custom_dem.tif
+# Run all workflows with custom DEM
+./run_workflows.py --all --dem my_custom_dem.tif
 ```
 
 ---
@@ -270,7 +270,7 @@ whitebox_tools -r=ExtractStreams \
 
 3. **Check input DEM**:
    ```bash
-   gdalinfo DEM5_bbox_Dettelbach.tif
+   gdalinfo dem.tif
    ```
 
 4. **View logs**:

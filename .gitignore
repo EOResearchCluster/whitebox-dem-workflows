@@ -59,3 +59,7 @@ Thumbs.db
 
 # Test data (optional - uncomment if you want to commit test data)
 # !test_data/*.tif
+
+# Pixi environment
+.pixi/
+pixi.lock

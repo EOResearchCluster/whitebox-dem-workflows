@@ -14,7 +14,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration - use command-line arg or default
-DEM="${1:-DEM5_bbox_Dettelbach.tif}"
+DEM="${1:-dem.tif}"
 LOG_DIR="logs"
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 

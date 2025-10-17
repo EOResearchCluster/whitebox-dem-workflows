@@ -14,7 +14,7 @@
 
 ### 3. Command-Line Arguments Added
 - All scripts now accept DEM file as argument
-- Default: DEM5_bbox_Dettelbach.tif
+- Default: dem.tif
 - Usage: `./01_hydrology.sh your_dem.tif`
 
 ### 4. Utility Functions Added
@@ -31,7 +31,7 @@
 - `03_stream_network.sh` - Stream network analysis
 - `04_morphometry.sh` - Morphometry analysis
 - `run_all_workflows.sh` - Master script
-- `run_workflows.py` - Python wrapper with parallel execution
+- `run_workflows.py` - Python wrapper for workflow management
 
 ### Utilities
 - `view_raster.py` - Quick raster visualization tool
@@ -177,7 +177,7 @@ Comprehensive DEM processing toolkit:
 ✅ 150+ outputs from one DEM
 ✅ Hydrology, geomorphometry, streams, morphometry
 ✅ 100% free tools
-✅ Parallel processing
+✅ High performance (auto-parallelized)
 ✅ Easy-to-use utilities
 
 Clone it and try: `./run_all_workflows.sh your_dem.tif`
@@ -270,7 +270,7 @@ source utils.sh
 ### Daily Usage
 ```bash
 # Process a DEM
-./run_workflows.py --parallel --dem mydem.tif
+./run_workflows.py --all --dem mydem.tif
 
 # Quick preview
 rp slope

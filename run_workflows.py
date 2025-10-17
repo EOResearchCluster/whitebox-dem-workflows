@@ -3,12 +3,14 @@
 WhiteboxTools Geoprocessing Workflow Manager
 
 This script provides a Python interface to run WhiteboxTools workflows
-with options for parallel execution, selective workflow running, and
-progress monitoring.
+with options for selective workflow running and progress monitoring.
+
+Note: WhiteboxTools automatically uses all available CPU cores for each tool,
+so running workflows sequentially is actually faster than trying to run
+multiple workflows simultaneously (which would cause CPU contention).
 
 Usage:
-    python run_workflows.py --all              # Run all workflows sequentially
-    python run_workflows.py --parallel         # Run independent workflows in parallel
+    python run_workflows.py --all              # Run all workflows
     python run_workflows.py --workflow hydrology  # Run specific workflow
     python run_workflows.py --list             # List available workflows
 """
@@ -20,60 +22,60 @@ import os
 import time
 from pathlib import Path
 from datetime import datetime
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import List, Dict, Tuple
 
 
 class Colors:
     """ANSI color codes for terminal output"""
-    RED = '\033[0;31m'
-    GREEN = '\033[0;32m'
-    YELLOW = '\033[1;33m'
-    BLUE = '\033[0;34m'
-    MAGENTA = '\033[0;35m'
-    CYAN = '\033[0;36m'
-    BOLD = '\033[1m'
-    NC = '\033[0m'  # No Color
+
+    RED = "\033[0;31m"
+    GREEN = "\033[0;32m"
+    YELLOW = "\033[1;33m"
+    BLUE = "\033[0;34m"
+    MAGENTA = "\033[0;35m"
+    CYAN = "\033[0;36m"
+    BOLD = "\033[1m"
+    NC = "\033[0m"  # No Color
 
 
 class WorkflowManager:
     """Manages execution of WhiteboxTools workflows"""
 
-    def __init__(self, dem_file: str = "DEM5_bbox_Dettelbach.tif"):
+    def __init__(self, dem_file: str = "dem.tif"):
         self.dem_file = Path(dem_file)
         self.log_dir = Path("logs")
         self.log_dir.mkdir(exist_ok=True)
 
         # Define workflows with their properties
         self.workflows = {
-            'geomorphometry': {
-                'script': '02_geomorphometry.sh',
-                'name': 'Geomorphometry Analysis',
-                'description': 'Terrain attributes, curvatures, roughness, and landforms',
-                'dependencies': [],
-                'output_dir': 'outputs/02_geomorphometry'
+            "geomorphometry": {
+                "script": "02_geomorphometry.sh",
+                "name": "Geomorphometry Analysis",
+                "description": "Terrain attributes, curvatures, roughness, and landforms",
+                "dependencies": [],
+                "output_dir": "outputs/02_geomorphometry",
             },
-            'hydrology': {
-                'script': '01_hydrology.sh',
-                'name': 'Hydrological Analysis',
-                'description': 'Flow direction, accumulation, watersheds, and wetness indices',
-                'dependencies': [],
-                'output_dir': 'outputs/01_hydrology'
+            "hydrology": {
+                "script": "01_hydrology.sh",
+                "name": "Hydrological Analysis",
+                "description": "Flow direction, accumulation, watersheds, and wetness indices",
+                "dependencies": [],
+                "output_dir": "outputs/01_hydrology",
             },
-            'stream_network': {
-                'script': '03_stream_network.sh',
-                'name': 'Stream Network Analysis',
-                'description': 'Stream extraction, ordering, and longitudinal profiles',
-                'dependencies': ['hydrology'],
-                'output_dir': 'outputs/03_stream_network'
+            "stream_network": {
+                "script": "03_stream_network.sh",
+                "name": "Stream Network Analysis",
+                "description": "Stream extraction, ordering, and longitudinal profiles",
+                "dependencies": ["hydrology"],
+                "output_dir": "outputs/03_stream_network",
             },
-            'morphometry': {
-                'script': '04_morphometry.sh',
-                'name': 'Morphometric Analysis',
-                'description': 'Advanced terrain metrics, texture, and relative position',
-                'dependencies': [],
-                'output_dir': 'outputs/04_morphometry'
-            }
+            "morphometry": {
+                "script": "04_morphometry.sh",
+                "name": "Morphometric Analysis",
+                "description": "Advanced terrain metrics, texture, and relative position",
+                "dependencies": [],
+                "output_dir": "outputs/04_morphometry",
+            },
         }
 
     def print_status(self, message: str, color: str = Colors.BLUE):
@@ -103,16 +105,18 @@ class WorkflowManager:
         # Check if whitebox_tools is available
         try:
             result = subprocess.run(
-                ['whitebox_tools', '--version'],
+                ["whitebox_tools", "--version"],
                 capture_output=True,
                 text=True,
-                timeout=5
+                timeout=5,
             )
             if result.returncode == 0:
                 self.print_success("WhiteboxTools found and accessible")
                 return True
         except (subprocess.TimeoutExpired, FileNotFoundError):
-            self.print_error("WhiteboxTools not found. Install with: pixi global install whitebox_tools")
+            self.print_error(
+                "WhiteboxTools not found. Install with: pixi global install whitebox_tools"
+            )
             return False
 
         return False
@@ -129,8 +133,8 @@ class WorkflowManager:
             Tuple of (success, duration, log_file)
         """
         workflow = self.workflows[workflow_key]
-        script = workflow['script']
-        name = workflow['name']
+        script = workflow["script"]
+        name = workflow["name"]
 
         # Make script executable
         self.make_executable(script)
@@ -143,18 +147,25 @@ class WorkflowManager:
         start_time = time.time()
 
         try:
-            with open(log_file, 'w') as log:
+            with open(log_file, "w") as log:
+                # Build command with DEM file and output directory arguments
+                cmd = ["bash", script, str(self.dem_file), workflow["output_dir"]]
+
+                # For morphometry workflow, also pass geomorphometry directory
+                if workflow_key == "morphometry":
+                    cmd.append("outputs/02_geomorphometry")
+
                 process = subprocess.Popen(
-                    ['bash', script],
+                    cmd,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT,
                     text=True,
-                    bufsize=1
+                    bufsize=1,
                 )
 
                 # Stream output to console and log file
                 for line in process.stdout:
-                    print(line, end='')
+                    print(line, end="")
                     log.write(line)
 
                 process.wait()
@@ -164,7 +175,9 @@ class WorkflowManager:
                     self.print_success(f"{name} completed in {duration:.1f} seconds")
                     return True, duration, str(log_file)
                 else:
-                    self.print_error(f"{name} failed with return code {process.returncode}")
+                    self.print_error(
+                        f"{name} failed with return code {process.returncode}"
+                    )
                     return False, duration, str(log_file)
 
         except Exception as e:
@@ -172,66 +185,35 @@ class WorkflowManager:
             self.print_error(f"{name} failed with exception: {e}")
             return False, duration, str(log_file)
 
-    def run_sequential(self, workflow_keys: List[str]) -> Dict:
-        """Run workflows sequentially"""
+    def run_all(self, workflow_keys: List[str]) -> Dict:
+        """
+        Run workflows in sequence.
+
+        Note: Sequential execution is optimal because WhiteboxTools already
+        uses all available CPU cores for each tool. Running multiple workflows
+        simultaneously would cause CPU contention and slow things down.
+        """
         results = {}
         total_start = time.time()
 
         for workflow_key in workflow_keys:
             success, duration, log_file = self.run_workflow(workflow_key)
             results[workflow_key] = {
-                'success': success,
-                'duration': duration,
-                'log_file': log_file
+                "success": success,
+                "duration": duration,
+                "log_file": log_file,
             }
 
-        total_duration = time.time() - total_start
-        results['total_duration'] = total_duration
-
-        return results
-
-    def run_parallel(self) -> Dict:
-        """Run independent workflows in parallel"""
-        # Separate workflows into independent and dependent
-        independent = ['geomorphometry', 'hydrology', 'morphometry']
-        dependent = ['stream_network']
-
-        results = {}
-        total_start = time.time()
-
-        # Run independent workflows in parallel
-        self.print_status(f"Running {len(independent)} independent workflows in parallel...")
-
-        with ThreadPoolExecutor(max_workers=3) as executor:
-            futures = {
-                executor.submit(self.run_workflow, key): key
-                for key in independent
-            }
-
-            for future in as_completed(futures):
-                workflow_key = futures[future]
-                success, duration, log_file = future.result()
-                results[workflow_key] = {
-                    'success': success,
-                    'duration': duration,
-                    'log_file': log_file
-                }
-
-        # Run dependent workflows if prerequisites succeeded
-        if results.get('hydrology', {}).get('success', False):
-            self.print_status("Running dependent workflows...")
-            for workflow_key in dependent:
-                success, duration, log_file = self.run_workflow(workflow_key)
-                results[workflow_key] = {
-                    'success': success,
-                    'duration': duration,
-                    'log_file': log_file
-                }
-        else:
-            self.print_warning("Skipping stream network analysis (hydrology failed)")
+            # Skip stream_network if hydrology failed
+            if workflow_key == "hydrology" and not success:
+                self.print_warning(
+                    "Skipping stream network analysis (hydrology failed)"
+                )
+                if "stream_network" in workflow_keys:
+                    workflow_keys.remove("stream_network")
 
         total_duration = time.time() - total_start
-        results['total_duration'] = total_duration
+        results["total_duration"] = total_duration
 
         return results
 
@@ -239,7 +221,11 @@ class WorkflowManager:
         """List all available workflows"""
         print(f"\n{Colors.BOLD}Available Workflows:{Colors.NC}\n")
         for key, workflow in self.workflows.items():
-            deps = ', '.join(workflow['dependencies']) if workflow['dependencies'] else 'None'
+            deps = (
+                ", ".join(workflow["dependencies"])
+                if workflow["dependencies"]
+                else "None"
+            )
             print(f"{Colors.CYAN}{key:20}{Colors.NC} - {workflow['name']}")
             print(f"{'':20}   {workflow['description']}")
             print(f"{'':20}   Dependencies: {deps}")
@@ -256,11 +242,11 @@ class WorkflowManager:
         failed = []
 
         for key, result in results.items():
-            if key == 'total_duration':
+            if key == "total_duration":
                 continue
 
             workflow = self.workflows[key]
-            if result['success']:
+            if result["success"]:
                 successful.append(key)
                 status = f"{Colors.GREEN}✓ SUCCESS{Colors.NC}"
             else:
@@ -271,9 +257,11 @@ class WorkflowManager:
             print(f"{'':10}Log: {result['log_file']}")
 
         print("\n" + "-" * 80)
-        print(f"Total execution time: {results['total_duration']:.1f} seconds "
-              f"({results['total_duration'] / 60:.1f} minutes)")
-        print(f"Successful: {len(successful)}/{len(results)-1}")
+        print(
+            f"Total execution time: {results['total_duration']:.1f} seconds "
+            f"({results['total_duration'] / 60:.1f} minutes)"
+        )
+        print(f"Successful: {len(successful)}/{len(results) - 1}")
         if failed:
             print(f"{Colors.RED}Failed: {', '.join(failed)}{Colors.NC}")
 
@@ -281,9 +269,9 @@ class WorkflowManager:
         print("\n" + "-" * 80)
         print("Output file counts:")
         for key in self.workflows.keys():
-            output_dir = Path(self.workflows[key]['output_dir'])
+            output_dir = Path(self.workflows[key]["output_dir"])
             if output_dir.exists():
-                file_count = len(list(output_dir.rglob('*')))
+                file_count = len(list(output_dir.rglob("*")))
                 print(f"  {key:20} {file_count:4} files")
 
         print("\n" + "=" * 80 + "\n")
@@ -291,28 +279,35 @@ class WorkflowManager:
 
 def main():
     parser = argparse.ArgumentParser(
-        description='WhiteboxTools Workflow Manager',
+        description="WhiteboxTools Workflow Manager - Note: WhiteboxTools automatically uses all CPU cores",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python run_workflows.py --all              # Run all workflows sequentially
-  python run_workflows.py --parallel         # Run independent workflows in parallel
+  python run_workflows.py --all              # Run all workflows
   python run_workflows.py --workflow hydrology  # Run specific workflow
   python run_workflows.py --list             # List available workflows
-        """
+
+Note:
+  WhiteboxTools automatically parallelizes each tool across all available CPU cores.
+  Sequential workflow execution is optimal - running multiple workflows simultaneously
+  would cause CPU contention and actually slow down processing.
+        """,
     )
 
-    parser.add_argument('--all', action='store_true',
-                        help='Run all workflows sequentially')
-    parser.add_argument('--parallel', action='store_true',
-                        help='Run independent workflows in parallel')
-    parser.add_argument('--workflow', type=str, choices=['hydrology', 'geomorphometry',
-                                                          'stream_network', 'morphometry'],
-                        help='Run a specific workflow')
-    parser.add_argument('--list', action='store_true',
-                        help='List available workflows')
-    parser.add_argument('--dem', type=str, default='DEM5_bbox_Dettelbach.tif',
-                        help='Path to DEM file (default: DEM5_bbox_Dettelbach.tif)')
+    parser.add_argument("--all", action="store_true", help="Run all workflows")
+    parser.add_argument(
+        "--workflow",
+        type=str,
+        choices=["hydrology", "geomorphometry", "stream_network", "morphometry"],
+        help="Run a specific workflow",
+    )
+    parser.add_argument("--list", action="store_true", help="List available workflows")
+    parser.add_argument(
+        "--dem",
+        type=str,
+        default="dem.tif",
+        help="Path to DEM file (default: dem.tif)",
+    )
 
     args = parser.parse_args()
 
@@ -345,20 +340,21 @@ Examples:
         total_start = time.time()
         success, duration, log_file = manager.run_workflow(args.workflow)
         results[args.workflow] = {
-            'success': success,
-            'duration': duration,
-            'log_file': log_file
+            "success": success,
+            "duration": duration,
+            "log_file": log_file,
         }
-        results['total_duration'] = time.time() - total_start
-
-    elif args.parallel:
-        # Run in parallel
-        results = manager.run_parallel()
+        results["total_duration"] = time.time() - total_start
 
     elif args.all:
-        # Run all sequentially
-        workflow_order = ['geomorphometry', 'hydrology', 'stream_network', 'morphometry']
-        results = manager.run_sequential(workflow_order)
+        # Run all workflows
+        workflow_order = [
+            "geomorphometry",
+            "hydrology",
+            "stream_network",
+            "morphometry",
+        ]
+        results = manager.run_all(workflow_order)
 
     else:
         parser.print_help()
@@ -369,5 +365,5 @@ Examples:
         manager.print_summary(results)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

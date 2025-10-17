@@ -7,7 +7,7 @@
 # ============================================================================
 
 # Configuration - use command-line args or defaults
-DEM="${1:-DEM5_bbox_Dettelbach.tif}"
+DEM="${1:-dem.tif}"
 OUTPUT_DIR="${2:-outputs/02_geomorphometry}"
 
 # Check if DEM exists

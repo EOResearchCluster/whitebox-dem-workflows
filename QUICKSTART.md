@@ -1,5 +1,24 @@
 # Quick Start Guide
 
+## 0. First Time Setup
+
+**Before running workflows, install dependencies:**
+
+See **[INSTALL.md](INSTALL.md)** for complete installation instructions.
+
+**Quick install:**
+```bash
+# Install pixi
+curl -fsSL https://pixi.sh/install.sh | bash
+
+# Then choose ONE:
+pixi global install whitebox_tools          # Global (simple)
+# OR
+pixi install && pixi shell                  # Project (recommended)
+```
+
+---
+
 ## 1. Run Everything (Easiest)
 
 ```bash
@@ -10,18 +29,17 @@ This runs all 4 workflows in sequence with full logging and colored output.
 
 ---
 
-## 2. Run with Python (Parallel Processing)
+## 2. Run with Python
 
 ```bash
-# Run independent workflows in parallel (FASTEST)
-./run_workflows.py --parallel
-
-# Or run all sequentially
+# Run all workflows
 ./run_workflows.py --all
 
 # Or run just one workflow
 ./run_workflows.py --workflow hydrology
 ```
+
+**Note**: WhiteboxTools automatically uses all CPU cores, so sequential execution is optimal.
 
 ---
 
@@ -42,7 +60,13 @@ This runs all 4 workflows in sequence with full logging and colored output.
 ## 4. Quick Commands
 
 ### Load Utility Functions
+
+**Note:** Utilities require the pixi project install (not global).
+
 ```bash
+# Make sure you're in pixi shell
+pixi shell
+
 # Source utility functions for easy access
 source utils.sh
 
@@ -102,8 +126,8 @@ tail -f logs/01_hydrology_*.log  # Follow hydrology log
 - **~5 HTML reports**
 
 ### Processing Time
-- **Sequential**: 8-21 minutes
-- **Parallel**: 5-12 minutes (Python with --parallel)
+- **All workflows**: 8-21 minutes (varies by DEM size and CPU cores)
+- WhiteboxTools automatically uses all available CPU cores for maximum performance
 
 ---
 
@@ -146,7 +170,10 @@ cat logs/01_hydrology_*.log | tail -50
 
 ### If "command not found":
 ```bash
-# Install WhiteboxTools
+# See INSTALL.md for complete installation guide
+
+# Quick fix - install pixi and WhiteboxTools
+curl -fsSL https://pixi.sh/install.sh | bash
 pixi global install whitebox_tools
 
 # Make scripts executable

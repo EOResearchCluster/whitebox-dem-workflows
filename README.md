@@ -8,26 +8,47 @@ Comprehensive geoprocessing workflows for Digital Elevation Model (DEM) analysis
 ## Quick Start
 
 ```bash
-# Install WhiteboxTools
-pixi global install whitebox_tools
+# 1. Install pixi (package manager)
+curl -fsSL https://pixi.sh/install.sh | bash
 
-# Run all workflows
+# 2. Clone repository
+git clone https://github.com/EOResearchCluster/whitebox-dem-workflows.git
+cd whitebox-dem-workflows
+
+# 3. Choose installation method:
+
+# Option A: Global install (simplest)
+pixi global install whitebox_tools
 ./run_all_workflows.sh your_dem.tif
 
-# Or run with Python (parallel processing)
-./run_workflows.py --parallel --dem your_dem.tif
+# Option B: Project install (recommended, includes utilities)
+pixi install
+pixi shell
+./run_all_workflows.sh your_dem.tif
 ```
+
+**📖 See [INSTALL.md](INSTALL.md) for detailed installation instructions**
+
+### Installation Options
+
+| Method | Setup | Utilities (`rp`, etc.) | When to Use |
+|--------|-------|------------------------|-------------|
+| **Global** | `pixi global install whitebox_tools` | ❌ No | Quick tests |
+| **Project** | `pixi install && pixi shell` | ✅ Yes | Daily use (recommended) |
+
+See [SETUP_GUIDE.md](SETUP_GUIDE.md) to choose the right option for you!
 
 ## Features
 
 - **100% Free Tools**: Uses only WhiteboxTools open-source functions (no license required)
 - **Comprehensive Coverage**: 150+ derived products from a single DEM
 - **Production Ready**: Shell scripts with CLI arguments + Python wrapper
-- **Parallel Execution**: Python wrapper supports parallel processing
+- **High Performance**: WhiteboxTools automatically uses all CPU cores for optimal speed
 - **Well Documented**: Complete usage examples and tool descriptions
 
 ## Documentation
 
+- **[INSTALL.md](INSTALL.md)** - Complete installation guide
 - **[QUICKSTART.md](QUICKSTART.md)** - Quick reference guide
 - **[FIXES.md](FIXES.md)** - Changelog and fixes documentation
 - **[GITHUB_PUSH_INSTRUCTIONS.md](GITHUB_PUSH_INSTRUCTIONS.md)** - Instructions for GitHub setup
@@ -56,9 +77,10 @@ Advanced morphometric analysis including terrain texture and multi-scale metrics
 
 ## Requirements
 
-- **WhiteboxTools**: `pixi global install whitebox_tools`
+- **Pixi** (package manager): See [INSTALL.md](INSTALL.md)
+- **WhiteboxTools**: Auto-installed via pixi
 - **Bash**: Standard on macOS/Linux
-- **Python 3.6+**: Optional (for parallel execution)
+- **Python 3.11+**: Auto-installed with pixi project (for utilities)
 
 ## Usage
 
@@ -77,8 +99,8 @@ Advanced morphometric analysis including terrain texture and multi-scale metrics
 
 ### Python Wrapper
 ```bash
-# Run in parallel (fastest)
-./run_workflows.py --parallel --dem your_dem.tif
+# Run all workflows
+./run_workflows.py --all --dem your_dem.tif
 
 # List available workflows
 ./run_workflows.py --list
@@ -86,6 +108,10 @@ Advanced morphometric analysis including terrain texture and multi-scale metrics
 # Run specific workflow
 ./run_workflows.py --workflow hydrology --dem your_dem.tif
 ```
+
+> **Note**: WhiteboxTools automatically uses all available CPU cores for each tool, 
+> so workflows run sequentially for optimal performance. Running multiple workflows 
+> simultaneously would cause CPU contention and slow things down.
 
 ### Utility Functions
 ```bash

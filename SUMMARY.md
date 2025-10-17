@@ -12,7 +12,7 @@ A complete, production-ready toolkit for comprehensive DEM analysis using Whiteb
 5. **run_all_workflows.sh** - Master script to run all workflows
 
 ### Python Wrapper
-6. **run_workflows.py** - Python interface with parallel execution support
+6. **run_workflows.py** - Python interface for workflow management
 
 ### Documentation
 7. **README.md** - Main GitHub documentation
@@ -77,7 +77,7 @@ From a **single DEM input**, the workflows generate:
 ✅ **100% Free**: Only open-source WhiteboxTools functions
 ✅ **Production Ready**: Full error handling and logging
 ✅ **Flexible**: CLI arguments for all scripts
-✅ **Fast**: Python wrapper supports parallel execution
+✅ **High Performance**: WhiteboxTools automatically uses all CPU cores
 ✅ **Documented**: Comprehensive README and examples
 ✅ **Tested**: All tools verified to work
 
@@ -140,7 +140,7 @@ whitebox-dem-workflows/
 
 ### Run All Workflows
 ```bash
-./run_all_workflows.sh DEM5_bbox_Dettelbach.tif
+./run_all_workflows.sh dem.tif
 ```
 
 ### Run with Custom DEM
@@ -148,9 +148,9 @@ whitebox-dem-workflows/
 ./run_all_workflows.sh /path/to/your_dem.tif
 ```
 
-### Run in Parallel (Fastest)
+### Run with Python
 ```bash
-./run_workflows.py --parallel --dem your_dem.tif
+./run_workflows.py --all --dem your_dem.tif
 ```
 
 ### Run Individual Workflow
@@ -208,7 +208,7 @@ pixi global install whitebox_tools
 📌 **No License Required**: All tools are free/open-source
 📌 **Easy to Use**: Single command processes entire DEM
 📌 **Comprehensive**: 150+ outputs covering all terrain aspects
-📌 **Fast**: Parallel processing support
+📌 **High Performance**: WhiteboxTools automatically uses all CPU cores
 📌 **Well Documented**: Complete examples and troubleshooting
 
 ---
@@ -292,7 +292,7 @@ Computers & Geosciences, 95, 75-84.
 ✅ All workflow scripts run without errors
 ✅ All licensed tools removed
 ✅ Command-line arguments work
-✅ Python wrapper supports parallel execution
+✅ Python wrapper provides workflow management
 ✅ Documentation is complete
 ✅ Repository is ready for GitHub
 ✅ Colleagues can clone and run immediately

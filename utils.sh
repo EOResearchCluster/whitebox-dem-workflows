@@ -26,13 +26,33 @@
 #   rp outputs/01_hydrology/dem_breached.tif
 # ------------------------------------------------------------------------------
 rp() {
-    # Check if Python script exists
-    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    local viewer="${script_dir}/view_raster.py"
+    # Find view_raster.py by searching up the directory tree
+    local current_dir="$PWD"
+    local viewer=""
+
+    # Search for view_raster.py in current dir and up to 3 levels up
+    for i in {0..3}; do
+        local search_dir="$current_dir"
+        for j in $(seq 1 $i); do
+            search_dir="$(dirname "$search_dir")"
+        done
+
+        if [ -f "$search_dir/view_raster.py" ]; then
+            viewer="$search_dir/view_raster.py"
+            break
+        fi
+    done
+
+    # Fallback: try script location
+    if [ -z "$viewer" ]; then
+        local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+        viewer="${script_dir}/view_raster.py"
+    fi
 
     if [ ! -f "$viewer" ]; then
-        echo "❌ Error: view_raster.py not found at $viewer"
-        echo "   Make sure you're in the whitebox-dem-workflows directory"
+        echo "❌ Error: view_raster.py not found"
+        echo "   Searched in: $current_dir and parent directories"
+        echo "   Make sure you're in or below the whitebox-dem-workflows directory"
         return 1
     fi
 
@@ -48,8 +68,8 @@ rp() {
         return 1
     fi
 
-    # Run viewer
-    python3 "$viewer" "$@"
+    # Run viewer with current directory as search base
+    python3 "$viewer" "$@" --search-dir "$current_dir"
 }
 
 
