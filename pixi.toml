@@ -8,24 +8,20 @@ platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
 
 [tasks]
 # Run all workflows
-run-all = "./run_all_workflows.sh dem.tif"
+run-all = "python run_workflows.py --all"
 
 # Run individual workflows
-hydrology = "./01_hydrology.sh dem.tif"
-geomorphometry = "./02_geomorphometry.sh dem.tif"
-stream-network = "./03_stream_network.sh dem.tif"
-morphometry = "./04_morphometry.sh dem.tif"
-
-# Python wrapper
-run-py = "python run_workflows.py --all"
-list-workflows = "python run_workflows.py --list"
+hydrology = "python run_workflows.py --workflow hydrology"
+geomorphometry = "python run_workflows.py --workflow geomorphometry"
+stream-network = "python run_workflows.py --workflow stream_network"
+morphometry = "python run_workflows.py --workflow morphometry"
 
 # Utilities
-load-utils = "source utils.sh"
+list-workflows = "python run_workflows.py --list"
 view = { cmd = "python view_raster.py" }
 
-# Cleanup
-clean = "rm -rf outputs/ logs/"
+# Cleanup (cross-platform)
+clean = "python -c \"import shutil; shutil.rmtree('outputs', ignore_errors=True); shutil.rmtree('logs', ignore_errors=True)\""
 
 [dependencies]
 python = ">=3.11,<3.13"
