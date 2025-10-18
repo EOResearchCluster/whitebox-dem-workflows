@@ -63,3 +63,4 @@ Thumbs.db
 # Pixi environment
 .pixi/
 pixi.lock
+*.svg

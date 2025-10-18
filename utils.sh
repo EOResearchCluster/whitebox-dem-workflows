@@ -13,19 +13,19 @@
 
 
 # ------------------------------------------------------------------------------
-# rp - Raster Preview (Quick visualization)
+# rpx - Raster Preview (Quick visualization)
 # ------------------------------------------------------------------------------
-# Usage: rp <pattern>
+# Usage: rpx <pattern>
 #
 # Quickly view a raster file matching the pattern.
 # Automatically selects appropriate colormap based on raster type.
 #
 # Examples:
-#   rp slope              # View first file matching "slope"
-#   rp hillshade          # View hillshade
-#   rp outputs/01_hydrology/dem_breached.tif
+#   rpx slope              # View first file matching "slope"
+#   rpx hillshade          # View hillshade
+#   rpx outputs/01_hydrology/dem_breached.tif
 # ------------------------------------------------------------------------------
-rp() {
+rpx() {
     # Find view_raster.py by searching up the directory tree
     local current_dir="$PWD"
     local viewer=""
@@ -58,13 +58,13 @@ rp() {
 
     # Check for arguments
     if [ $# -eq 0 ]; then
-        echo "Usage: rp <pattern> [--cmap COLORMAP] [--hillshade]"
+        echo "Usage: rpx <pattern> [--cmap COLORMAP] [--hillshade]"
         echo ""
         echo "Examples:"
-        echo "  rp slope                   # Find and view first file matching 'slope'"
-        echo "  rp hillshade.tif           # View specific file"
-        echo "  rp elevation --cmap terrain"
-        echo "  rp dem --hillshade"
+        echo "  rpx slope                   # Find and view first file matching 'slope'"
+        echo "  rpx hillshade.tif           # View specific file"
+        echo "  rpx elevation --cmap terrain"
+        echo "  rpx dem --hillshade"
         return 1
     fi
 
@@ -275,7 +275,7 @@ if [ "${BASH_SOURCE[0]}" != "${0}" ]; then
     echo "✅ WhiteboxTools utility functions loaded!"
     echo ""
     echo "Available commands:"
-    echo "  rp <pattern>                      - Quick raster preview"
+    echo "  rpx <pattern>                      - Quick raster preview"
     echo "  list_outputs [workflow]           - List workflow outputs"
     echo "  compare_rasters <r1> <r2>         - Compare two rasters"
     echo "  workflow_status                   - Check workflow completion"
