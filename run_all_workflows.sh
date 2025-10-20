@@ -19,7 +19,7 @@ LOG_DIR="logs"
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 
 # Create log directory
-install -d -D "$LOG_DIR"
+mkdir -p "$LOG_DIR"
 
 # Function to print colored status messages
 print_status() {

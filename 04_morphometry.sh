@@ -20,7 +20,7 @@ if [ ! -f "$DEM" ]; then
 fi
 
 # Create output directory
-install -d -D "$OUTPUT_DIR"
+mkdir -p "$OUTPUT_DIR"
 
 echo "========================================"
 echo "MORPHOMETRY WORKFLOW STARTED"

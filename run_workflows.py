@@ -22,24 +22,46 @@ import os
 import time
 from pathlib import Path
 from datetime import datetime
-from typing import List, Dict, Tuple
+from typing import Final, TypedDict
+
+
+class WorkflowConfig(TypedDict):
+    """Type definition for workflow configuration"""
+
+    script: str
+    name: str
+    description: str
+    dependencies: list[str]
+    output_dir: str
+
+
+class WorkflowResult(TypedDict):
+    """Type definition for workflow execution result"""
+
+    success: bool
+    duration: float
+    log_file: str
 
 
 class Colors:
     """ANSI color codes for terminal output"""
 
-    RED = "\033[0;31m"
-    GREEN = "\033[0;32m"
-    YELLOW = "\033[1;33m"
-    BLUE = "\033[0;34m"
-    MAGENTA = "\033[0;35m"
-    CYAN = "\033[0;36m"
-    BOLD = "\033[1m"
-    NC = "\033[0m"  # No Color
+    RED: Final[str] = "\033[0;31m"
+    GREEN: Final[str] = "\033[0;32m"
+    YELLOW: Final[str] = "\033[1;33m"
+    BLUE: Final[str] = "\033[0;34m"
+    MAGENTA: Final[str] = "\033[0;35m"
+    CYAN: Final[str] = "\033[0;36m"
+    BOLD: Final[str] = "\033[1m"
+    NC: Final[str] = "\033[0m"  # No Color
 
 
 class WorkflowManager:
     """Manages execution of WhiteboxTools workflows"""
+
+    dem_file: Path
+    log_dir: Path
+    workflows: dict[str, WorkflowConfig]
 
     def __init__(self, dem_file: str = "dem.tif"):
         self.dem_file = Path(dem_file)
@@ -121,11 +143,11 @@ class WorkflowManager:
 
         return False
 
-    def make_executable(self, script_path: str):
+    def make_executable(self, script_path: str) -> None:
         """Make script executable"""
-        os.chmod(script_path, 0o755)
+        _ = os.chmod(script_path, 0o755)
 
-    def run_workflow(self, workflow_key: str) -> Tuple[bool, float, str]:
+    def run_workflow(self, workflow_key: str) -> tuple[bool, float, str]:
         """
         Run a single workflow
 
@@ -185,7 +207,7 @@ class WorkflowManager:
             self.print_error(f"{name} failed with exception: {e}")
             return False, duration, str(log_file)
 
-    def run_all(self, workflow_keys: List[str]) -> Dict:
+    def run_all(self, workflow_keys: list[str]) -> dict[str, WorkflowResult | float]:
         """
         Run workflows in sequence.
 
@@ -193,16 +215,16 @@ class WorkflowManager:
         uses all available CPU cores for each tool. Running multiple workflows
         simultaneously would cause CPU contention and slow things down.
         """
-        results = {}
+        results: dict[str, WorkflowResult | float] = {}
         total_start = time.time()
 
         for workflow_key in workflow_keys:
             success, duration, log_file = self.run_workflow(workflow_key)
-            results[workflow_key] = {
-                "success": success,
-                "duration": duration,
-                "log_file": log_file,
-            }
+            results[workflow_key] = WorkflowResult(
+                success=success,
+                duration=duration,
+                log_file=log_file,
+            )
 
             # Skip stream_network if hydrology failed
             if workflow_key == "hydrology" and not success:
@@ -232,35 +254,39 @@ class WorkflowManager:
             print(f"{'':20}   Script: {workflow['script']}")
             print()
 
-    def print_summary(self, results: Dict):
+    def print_summary(self, results: dict[str, WorkflowResult | float]) -> None:
         """Print execution summary"""
         print("\n" + "=" * 80)
         print(f"{Colors.BOLD}EXECUTION SUMMARY{Colors.NC}")
         print("=" * 80 + "\n")
 
-        successful = []
-        failed = []
+        successful: list[str] = []
+        failed: list[str] = []
 
         for key, result in results.items():
             if key == "total_duration":
                 continue
 
-            workflow = self.workflows[key]
-            if result["success"]:
-                successful.append(key)
-                status = f"{Colors.GREEN}✓ SUCCESS{Colors.NC}"
-            else:
-                failed.append(key)
-                status = f"{Colors.RED}✗ FAILED{Colors.NC}"
+            # Type guard: at this point we know result is WorkflowResult
+            if isinstance(result, dict):
+                workflow = self.workflows[key]
+                if result["success"]:
+                    successful.append(key)
+                    status = f"{Colors.GREEN}✓ SUCCESS{Colors.NC}"
+                else:
+                    failed.append(key)
+                    status = f"{Colors.RED}✗ FAILED{Colors.NC}"
 
-            print(f"{status} {workflow['name']:30} ({result['duration']:.1f}s)")
-            print(f"{'':10}Log: {result['log_file']}")
+                print(f"{status} {workflow['name']:30} ({result['duration']:.1f}s)")
+                print(f"{'':10}Log: {result['log_file']}")
 
         print("\n" + "-" * 80)
-        print(
-            f"Total execution time: {results['total_duration']:.1f} seconds "
-            f"({results['total_duration'] / 60:.1f} minutes)"
-        )
+        total_duration = results.get("total_duration", 0.0)
+        if isinstance(total_duration, float):
+            print(
+                f"Total execution time: {total_duration:.1f} seconds "
+                f"({total_duration / 60:.1f} minutes)"
+            )
         print(f"Successful: {len(successful)}/{len(results) - 1}")
         if failed:
             print(f"{Colors.RED}Failed: {', '.join(failed)}{Colors.NC}")
@@ -332,18 +358,18 @@ Note:
     print("=" * 80 + "\n")
 
     # Run workflows based on arguments
-    results = None
+    results: dict[str, WorkflowResult | float] | None = None
 
     if args.workflow:
         # Run specific workflow
         results = {}
         total_start = time.time()
         success, duration, log_file = manager.run_workflow(args.workflow)
-        results[args.workflow] = {
-            "success": success,
-            "duration": duration,
-            "log_file": log_file,
-        }
+        results[args.workflow] = WorkflowResult(
+            success=success,
+            duration=duration,
+            log_file=log_file,
+        )
         results["total_duration"] = time.time() - total_start
 
     elif args.all:

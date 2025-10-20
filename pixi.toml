@@ -10,11 +10,11 @@ platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
 # Run all workflows
 run-all = "bash run_all_workflows.sh dem.tif"
 
-# Run individual workflows
-hydrology = "bash 01_hydrology.sh dem.tif"
-geomorphometry = "bash 02_geomorphometry.sh dem.tif"
-stream-network = "bash 03_stream_network.sh dem.tif"
-morphometry = "bash 04_morphometry.sh dem.tif"
+# Run individual workflows (with logging via wrapper script)
+hydrology = { cmd = "bash -c 'mkdir -p logs && exec bash 01_hydrology.sh dem.tif 2>&1 | tee logs/01_hydrology_$(date +%Y%m%d_%H%M%S).log'" }
+geomorphometry = { cmd = "bash -c 'mkdir -p logs && exec bash 02_geomorphometry.sh dem.tif 2>&1 | tee logs/02_geomorphometry_$(date +%Y%m%d_%H%M%S).log'" }
+stream-network = { cmd = "bash -c 'mkdir -p logs && exec bash 03_stream_network.sh dem.tif 2>&1 | tee logs/03_stream_network_$(date +%Y%m%d_%H%M%S).log'" }
+morphometry = { cmd = "bash -c 'mkdir -p logs && exec bash 04_morphometry.sh dem.tif 2>&1 | tee logs/04_morphometry_$(date +%Y%m%d_%H%M%S).log'" }
 
 # Python wrapper
 run-py = "python run_workflows.py --all"
