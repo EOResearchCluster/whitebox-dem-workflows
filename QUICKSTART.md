@@ -11,10 +11,10 @@ See **[INSTALL.md](INSTALL.md)** for complete installation instructions.
 # Install pixi
 curl -fsSL https://pixi.sh/install.sh | bash
 
-# Then choose ONE:
-pixi global install whitebox_tools          # Global (simple)
-# OR
-pixi install && pixi shell                  # Project (recommended)
+# Clone and install
+git clone https://github.com/EOResearchCluster/whitebox-dem-workflows.git
+cd whitebox-dem-workflows
+pixi install
 ```
 
 ---
@@ -22,7 +22,12 @@ pixi install && pixi shell                  # Project (recommended)
 ## 1. Run Everything (Easiest)
 
 ```bash
-./run_all_workflows.sh
+# Recommended (works on all platforms including WSL)
+pixi run run-all
+
+# Alternative (requires pixi shell activation first)
+pixi shell
+./run_all_workflows.sh dem.tif
 ```
 
 This runs all 4 workflows in sequence with full logging and colored output.
@@ -46,13 +51,18 @@ This runs all 4 workflows in sequence with full logging and colored output.
 ## 3. Run Individual Workflows
 
 ```bash
-# Independent workflows (can run in any order)
-./02_geomorphometry.sh    # Terrain attributes & curvatures
-./01_hydrology.sh         # Flow & watersheds
-./04_morphometry.sh       # Advanced terrain metrics
+# Using pixi run (recommended for WSL)
+pixi run geomorphometry    # Terrain attributes & curvatures
+pixi run hydrology         # Flow & watersheds
+pixi run morphometry       # Advanced terrain metrics
+pixi run stream-network    # Stream extraction & analysis (run AFTER hydrology)
 
-# Dependent workflow (run AFTER hydrology)
-./03_stream_network.sh    # Stream extraction & analysis
+# Or activate pixi shell first
+pixi shell
+./02_geomorphometry.sh dem.tif
+./01_hydrology.sh dem.tif
+./04_morphometry.sh dem.tif
+./03_stream_network.sh dem.tif  # Run AFTER hydrology
 ```
 
 ---
