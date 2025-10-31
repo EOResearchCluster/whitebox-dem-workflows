@@ -42,8 +42,9 @@ See [SETUP_GUIDE.md](SETUP_GUIDE.md) to choose the right option for you!
 
 - **100% Free Tools**: Uses only WhiteboxTools open-source functions (no license required)
 - **Comprehensive Coverage**: 150+ derived products from a single DEM
-- **Production Ready**: Shell scripts with CLI arguments + Python wrapper
+- **Production Ready**: Shell scripts with CLI arguments + Python wrapper + Native Python workflows
 - **High Performance**: WhiteboxTools automatically uses all CPU cores for optimal speed
+- **Native Python Support**: Uses whitebox Python package (open-source WhiteboxTools frontend)
 - **Well Documented**: Complete usage examples and tool descriptions
 
 ## Documentation
@@ -79,8 +80,35 @@ Advanced morphometric analysis including terrain texture and multi-scale metrics
 
 - **Pixi** (package manager): See [INSTALL.md](INSTALL.md)
 - **WhiteboxTools**: Auto-installed via pixi
-- **Bash**: Standard on macOS/Linux
-- **Python 3.11+**: Auto-installed with pixi project (for utilities)
+- **whitebox**: Auto-installed via pixi (for native Python workflows)
+- **Bash**: Standard on macOS/Linux (for shell scripts)
+- **Python 3.11+**: Auto-installed with pixi project
+
+## Implementation Options
+
+This repository provides **three** ways to run the workflows:
+
+| Method | Technology | Performance | Use Case |
+|--------|-----------|-------------|----------|
+| **Shell Scripts** | Bash + WhiteboxTools CLI | Good | Cross-platform, simple, proven |
+| **Python Wrapper** | Python + subprocess | Good | Orchestration, logging, monitoring |
+| **Native Python** | Python + whitebox | Best | Object-oriented API, cleaner code |
+
+### Shell Scripts (`.sh` files)
+- Direct calls to WhiteboxTools CLI
+- Simplest approach
+- Best for quick runs and testing
+
+### Python Wrapper (`run_workflows.py`)
+- Wraps shell scripts
+- Adds progress monitoring and logging
+- Good for automated runs
+
+### Native Python Workflows (`.py` files)
+- Uses `whitebox` Python package (open-source)
+- Clean object-oriented API
+- Better error handling and logging
+- **Recommended for Python developers**
 
 ## Usage
 
@@ -113,7 +141,7 @@ pixi run morphometry
 
 > **Note for WSL users**: Use `pixi run` commands instead of direct script execution to ensure WhiteboxTools is in your PATH.
 
-### Python Wrapper
+### Python Wrapper (calls shell scripts)
 ```bash
 # Run all workflows
 ./run_workflows.py --all --dem your_dem.tif
@@ -125,8 +153,30 @@ pixi run morphometry
 ./run_workflows.py --workflow hydrology --dem your_dem.tif
 ```
 
-> **Note**: WhiteboxTools automatically uses all available CPU cores for each tool, 
-> so workflows run sequentially for optimal performance. Running multiple workflows 
+### Native Python Workflows (using whitebox package)
+```bash
+# Run individual workflows using native Python API
+pixi run hydrology-py
+pixi run geomorphometry-py
+pixi run stream-network-py
+pixi run morphometry-py
+
+# Or directly
+python 01_hydrology.py dem.tif outputs/01_hydrology
+python 02_geomorphometry.py dem.tif outputs/02_geomorphometry
+python 03_stream_network.py dem.tif outputs/01_hydrology outputs/03_stream_network
+python 04_morphometry.py dem.tif outputs/04_morphometry outputs/02_geomorphometry
+
+# Show help for any workflow
+python 01_hydrology.py --help
+```
+
+> **Note**: The native Python workflows use the `whitebox` package (open-source frontend)
+> which provides a clean Pythonic API for WhiteboxTools with better error handling and
+> progress monitoring compared to calling shell scripts directly.
+
+> **Note**: WhiteboxTools automatically uses all available CPU cores for each tool,
+> so workflows run sequentially for optimal performance. Running multiple workflows
 > simultaneously would cause CPU contention and slow things down.
 
 ### Utility Functions

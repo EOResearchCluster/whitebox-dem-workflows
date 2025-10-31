@@ -1,7 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "WebSearch",
+      "WebFetch(domain:pypi.org)",
+      "WebFetch(domain:www.whiteboxgeo.com)",
+      "Bash(chmod:*)",
+      "Bash(python:*)",
+      "Bash(pixi run:*)"
     ],
     "deny": [],
     "ask": []
