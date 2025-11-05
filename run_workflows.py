@@ -71,28 +71,28 @@ class WorkflowManager:
         # Define workflows with their properties
         self.workflows = {
             "geomorphometry": {
-                "script": "02_geomorphometry.sh",
+                "script": "02_geomorphometry.py",
                 "name": "Geomorphometry Analysis",
                 "description": "Terrain attributes, curvatures, roughness, and landforms",
                 "dependencies": [],
                 "output_dir": "outputs/02_geomorphometry",
             },
             "hydrology": {
-                "script": "01_hydrology.sh",
+                "script": "01_hydrology.py",
                 "name": "Hydrological Analysis",
                 "description": "Flow direction, accumulation, watersheds, and wetness indices",
                 "dependencies": [],
                 "output_dir": "outputs/01_hydrology",
             },
             "stream_network": {
-                "script": "03_stream_network.sh",
+                "script": "03_stream_network.py",
                 "name": "Stream Network Analysis",
                 "description": "Stream extraction, ordering, and longitudinal profiles",
                 "dependencies": ["hydrology"],
                 "output_dir": "outputs/03_stream_network",
             },
             "morphometry": {
-                "script": "04_morphometry.sh",
+                "script": "04_morphometry.py",
                 "name": "Morphometric Analysis",
                 "description": "Advanced terrain metrics, texture, and relative position",
                 "dependencies": [],
@@ -124,28 +124,16 @@ class WorkflowManager:
             self.print_error(f"DEM file not found: {self.dem_file}")
             return False
 
-        # Check if whitebox_tools is available
+        # Check if whitebox_workflows is available
         try:
-            result = subprocess.run(
-                ["whitebox_tools", "--version"],
-                capture_output=True,
-                text=True,
-                timeout=5,
-            )
-            if result.returncode == 0:
-                self.print_success("WhiteboxTools found and accessible")
-                return True
-        except (subprocess.TimeoutExpired, FileNotFoundError):
+            import whitebox_workflows
+            self.print_success("whitebox_workflows Python package found")
+            return True
+        except ImportError:
             self.print_error(
-                "WhiteboxTools not found. Install with: pixi global install whitebox_tools"
+                "whitebox_workflows not found. Install with: pixi install"
             )
             return False
-
-        return False
-
-    def make_executable(self, script_path: str) -> None:
-        """Make script executable"""
-        _ = os.chmod(script_path, 0o755)
 
     def run_workflow(self, workflow_key: str) -> tuple[bool, float, str]:
         """
@@ -158,9 +146,6 @@ class WorkflowManager:
         script = workflow["script"]
         name = workflow["name"]
 
-        # Make script executable
-        self.make_executable(script)
-
         # Create log file
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         log_file = self.log_dir / f"{workflow_key}_{timestamp}.log"
@@ -170,12 +155,16 @@ class WorkflowManager:
 
         try:
             with open(log_file, "w") as log:
-                # Build command with DEM file and output directory arguments
-                cmd = ["bash", script, str(self.dem_file), workflow["output_dir"]]
+                # Build command with Python and script arguments
+                cmd = [sys.executable, script, str(self.dem_file), workflow["output_dir"]]
 
                 # For morphometry workflow, also pass geomorphometry directory
                 if workflow_key == "morphometry":
                     cmd.append("outputs/02_geomorphometry")
+
+                # For stream_network workflow, also pass hydrology directory
+                if workflow_key == "stream_network":
+                    cmd.insert(3, "outputs/01_hydrology")
 
                 process = subprocess.Popen(
                     cmd,
