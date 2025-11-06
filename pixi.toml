@@ -11,20 +11,18 @@ platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
 run-all = "python run_workflows.py --all"
 
 # Run individual workflows
-hydrology = "python 01_hydrology.py dem.tif outputs/01_hydrology"
-geomorphometry = "python 02_geomorphometry.py dem.tif outputs/02_geomorphometry"
-stream-network = "python 03_stream_network.py dem.tif outputs/01_hydrology outputs/03_stream_network"
-morphometry = "python 04_morphometry.py dem.tif outputs/04_morphometry outputs/02_geomorphometry"
-
-# Python workflow manager
-list-workflows = "python run_workflows.py --list"
+hydrology = "python run_workflows.py --workflow hydrology"
+geomorphometry = "python run_workflows.py --workflow geomorphometry"
+stream-network = "python run_workflows.py --workflow stream_network"
+morphometry = "python run_workflows.py --workflow morphometry"
 
 # Utilities
+list-workflows = "python run_workflows.py --list"
 view = { cmd = "python view_raster.py" }
 tiffplot = "python tiffplot.py"
 
-# Cleanup (cross-platform Python)
-clean = "python -c \"import shutil; import pathlib; [shutil.rmtree(p, ignore_errors=True) for p in [pathlib.Path('outputs'), pathlib.Path('logs')]]\""
+# Cleanup (cross-platform)
+clean = "python -c \"import shutil; shutil.rmtree('outputs', ignore_errors=True); shutil.rmtree('logs', ignore_errors=True)\""
 
 [dependencies]
 python = ">=3.11,<3.13"
