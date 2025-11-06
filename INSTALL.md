@@ -56,6 +56,10 @@ source ~/.bashrc  # or ~/.zshrc
 iwr -useb https://pixi.sh/install.ps1 | iex
 ```
 
+### WSL (Windows Subsystem for Linux)
+
+WSL is fully supported! Follow the Linux instructions above. See the [WSL Notes](#wsl-notes) section for platform-specific considerations.
+
 ### Verify Pixi Installation
 
 ```bash
@@ -289,6 +293,56 @@ source utils.sh
 cd /path/to/whitebox-dem-workflows
 source utils.sh
 ```
+
+---
+
+## WSL Notes
+
+The workflows are fully compatible with Windows Subsystem for Linux (WSL). However, there are a few platform-specific considerations:
+
+### Recommended Usage on WSL
+
+**Always use `pixi run` commands** instead of running scripts directly:
+
+```bash
+# ✅ Recommended on WSL
+pixi install
+pixi run hydrology
+pixi run geomorphometry
+pixi run stream-network
+pixi run morphometry
+pixi run run-all
+
+# ⚠️ Not recommended (may fail if whitebox_tools not in PATH)
+./01_hydrology.sh dem.tif
+```
+
+### Why Pixi Run?
+
+- Ensures WhiteboxTools is in your PATH
+- Handles environment activation automatically
+- Works reliably across WSL distributions
+- No need to manually activate pixi shell
+
+### Direct Script Execution
+
+If you prefer to run scripts directly on WSL:
+
+```bash
+# Activate pixi shell first
+pixi shell
+
+# Then run scripts normally
+./run_all_workflows.sh dem.tif
+```
+
+### Known Issues (Fixed)
+
+Previous versions had WSL-specific file system issues that caused "No such file or directory" errors. These have been resolved in the current version by:
+- Using `install -d -D` instead of `mkdir -p` for directory creation
+- Adding `--wd=.` flag to WhiteboxTools commands
+
+If you encounter any WSL-specific issues, please report them on our GitHub issues page.
 
 ---
 

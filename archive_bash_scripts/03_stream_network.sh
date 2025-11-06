@@ -45,26 +45,26 @@ echo "[1/8] Stream Extraction..."
 
 # Extract streams using different thresholds
 echo "  - Extracting streams (threshold: 1000 cells)..."
-whitebox_tools -r=ExtractStreams \
+whitebox_tools --wd=. -r=ExtractStreams \
   --flow_accum="$HYDRO_DIR/d8_flow_accum.tif" \
   -o="$OUTPUT_DIR/streams_1000.tif" \
   --threshold=1000
 
 echo "  - Extracting streams (threshold: 500 cells)..."
-whitebox_tools -r=ExtractStreams \
+whitebox_tools --wd=. -r=ExtractStreams \
   --flow_accum="$HYDRO_DIR/d8_flow_accum.tif" \
   -o="$OUTPUT_DIR/streams_500.tif" \
   --threshold=500
 
 echo "  - Extracting streams (threshold: 2000 cells)..."
-whitebox_tools -r=ExtractStreams \
+whitebox_tools --wd=. -r=ExtractStreams \
   --flow_accum="$HYDRO_DIR/d8_flow_accum.tif" \
   -o="$OUTPUT_DIR/streams_2000.tif" \
   --threshold=2000
 
 # Extract valleys
 echo "  - Extracting valleys..."
-whitebox_tools -r=ExtractValleys \
+whitebox_tools --wd=. -r=ExtractValleys \
   --dem="$HYDRO_DIR/dem_breached.tif" \
   -o="$OUTPUT_DIR/valleys.tif"
 
@@ -76,13 +76,13 @@ echo "[2/8] Stream Vectorization..."
 
 # Convert raster streams to vector
 echo "  - Converting raster streams to vector (1000 threshold)..."
-whitebox_tools -r=RasterStreamsToVector \
+whitebox_tools --wd=. -r=RasterStreamsToVector \
   --streams="$OUTPUT_DIR/streams_1000.tif" \
   --d8_pntr="$HYDRO_DIR/d8_pointer.tif" \
   -o="$OUTPUT_DIR/streams_1000_vector.shp"
 
 echo "  - Converting raster streams to vector (500 threshold)..."
-whitebox_tools -r=RasterStreamsToVector \
+whitebox_tools --wd=. -r=RasterStreamsToVector \
   --streams="$OUTPUT_DIR/streams_500.tif" \
   --d8_pntr="$HYDRO_DIR/d8_pointer.tif" \
   -o="$OUTPUT_DIR/streams_500_vector.shp"
@@ -95,35 +95,35 @@ echo "[3/8] Stream Ordering Systems..."
 
 # Strahler stream order
 echo "  - Calculating Strahler stream order..."
-whitebox_tools -r=StrahlerStreamOrder \
+whitebox_tools --wd=. -r=StrahlerStreamOrder \
   --d8_pntr="$HYDRO_DIR/d8_pointer.tif" \
   --streams="$OUTPUT_DIR/streams_1000.tif" \
   -o="$OUTPUT_DIR/strahler_order.tif"
 
 # Horton stream order
 echo "  - Calculating Horton stream order..."
-whitebox_tools -r=HortonStreamOrder \
+whitebox_tools --wd=. -r=HortonStreamOrder \
   --d8_pntr="$HYDRO_DIR/d8_pointer.tif" \
   --streams="$OUTPUT_DIR/streams_1000.tif" \
   -o="$OUTPUT_DIR/horton_order.tif"
 
 # Shreve stream magnitude
 echo "  - Calculating Shreve stream magnitude..."
-whitebox_tools -r=ShreveStreamMagnitude \
+whitebox_tools --wd=. -r=ShreveStreamMagnitude \
   --d8_pntr="$HYDRO_DIR/d8_pointer.tif" \
   --streams="$OUTPUT_DIR/streams_1000.tif" \
   -o="$OUTPUT_DIR/shreve_magnitude.tif"
 
 # Hack stream order
 echo "  - Calculating Hack stream order..."
-whitebox_tools -r=HackStreamOrder \
+whitebox_tools --wd=. -r=HackStreamOrder \
   --d8_pntr="$HYDRO_DIR/d8_pointer.tif" \
   --streams="$OUTPUT_DIR/streams_1000.tif" \
   -o="$OUTPUT_DIR/hack_order.tif"
 
 # Topological stream order
 echo "  - Calculating topological stream order..."
-whitebox_tools -r=TopologicalStreamOrder \
+whitebox_tools --wd=. -r=TopologicalStreamOrder \
   --d8_pntr="$HYDRO_DIR/d8_pointer.tif" \
   --streams="$OUTPUT_DIR/streams_1000.tif" \
   -o="$OUTPUT_DIR/topological_order.tif"
@@ -136,21 +136,21 @@ echo "[4/8] Stream Link Analysis..."
 
 # Stream link identifier
 echo "  - Identifying stream links..."
-whitebox_tools -r=StreamLinkIdentifier \
+whitebox_tools --wd=. -r=StreamLinkIdentifier \
   --d8_pntr="$HYDRO_DIR/d8_pointer.tif" \
   --streams="$OUTPUT_DIR/streams_1000.tif" \
   -o="$OUTPUT_DIR/stream_links.tif"
 
 # Stream link length
 echo "  - Calculating stream link lengths..."
-whitebox_tools -r=StreamLinkLength \
+whitebox_tools --wd=. -r=StreamLinkLength \
   --d8_pntr="$HYDRO_DIR/d8_pointer.tif" \
   --linkid="$OUTPUT_DIR/stream_links.tif" \
   -o="$OUTPUT_DIR/stream_link_length.tif"
 
 # Stream link slope
 echo "  - Calculating stream link slopes..."
-whitebox_tools -r=StreamLinkSlope \
+whitebox_tools --wd=. -r=StreamLinkSlope \
   --d8_pntr="$HYDRO_DIR/d8_pointer.tif" \
   --linkid="$OUTPUT_DIR/stream_links.tif" \
   --dem="$HYDRO_DIR/dem_breached.tif" \
@@ -158,7 +158,7 @@ whitebox_tools -r=StreamLinkSlope \
 
 # Stream link class
 echo "  - Classifying stream links..."
-whitebox_tools -r=StreamLinkClass \
+whitebox_tools --wd=. -r=StreamLinkClass \
   --d8_pntr="$HYDRO_DIR/d8_pointer.tif" \
   --streams="$OUTPUT_DIR/streams_1000.tif" \
   -o="$OUTPUT_DIR/stream_link_class.tif"
@@ -171,7 +171,7 @@ echo "[5/8] Tributary Analysis..."
 
 # Tributary identifier
 echo "  - Identifying tributaries..."
-whitebox_tools -r=TributaryIdentifier \
+whitebox_tools --wd=. -r=TributaryIdentifier \
   --d8_pntr="$HYDRO_DIR/d8_pointer.tif" \
   --streams="$OUTPUT_DIR/streams_1000.tif" \
   -o="$OUTPUT_DIR/tributaries.tif"
@@ -184,21 +184,21 @@ echo "[6/8] Channel Head and Network Metrics..."
 
 # Farthest channel head
 echo "  - Calculating distance to farthest channel head..."
-whitebox_tools -r=FarthestChannelHead \
+whitebox_tools --wd=. -r=FarthestChannelHead \
   --d8_pntr="$HYDRO_DIR/d8_pointer.tif" \
   --streams="$OUTPUT_DIR/streams_1000.tif" \
   -o="$OUTPUT_DIR/farthest_channel_head.tif"
 
 # Length of upstream channels
 echo "  - Calculating length of upstream channels..."
-whitebox_tools -r=LengthOfUpstreamChannels \
+whitebox_tools --wd=. -r=LengthOfUpstreamChannels \
   --d8_pntr="$HYDRO_DIR/d8_pointer.tif" \
   --streams="$OUTPUT_DIR/streams_1000.tif" \
   -o="$OUTPUT_DIR/upstream_channel_length.tif"
 
 # Distance to outlet
 echo "  - Calculating distance to outlet..."
-whitebox_tools -r=DistanceToOutlet \
+whitebox_tools --wd=. -r=DistanceToOutlet \
   --d8_pntr="$HYDRO_DIR/d8_pointer.tif" \
   --streams="$OUTPUT_DIR/streams_1000.tif" \
   -o="$OUTPUT_DIR/distance_to_outlet.tif"
@@ -211,7 +211,7 @@ echo "[7/8] Main Stem Identification..."
 
 # Find main stem
 echo "  - Finding main stem..."
-whitebox_tools -r=FindMainStem \
+whitebox_tools --wd=. -r=FindMainStem \
   --d8_pntr="$HYDRO_DIR/d8_pointer.tif" \
   --streams="$OUTPUT_DIR/streams_1000.tif" \
   -o="$OUTPUT_DIR/main_stem.tif"
@@ -224,7 +224,7 @@ echo "[8/8] Longitudinal Profiles..."
 
 # Long profile
 echo "  - Creating longitudinal stream profile..."
-whitebox_tools -r=LongProfile \
+whitebox_tools --wd=. -r=LongProfile \
   --d8_pntr="$HYDRO_DIR/d8_pointer.tif" \
   --streams="$OUTPUT_DIR/streams_1000.tif" \
   --dem="$HYDRO_DIR/dem_breached.tif" \
@@ -232,7 +232,7 @@ whitebox_tools -r=LongProfile \
 
 # Stream slope (continuous)
 echo "  - Calculating continuous stream slope..."
-whitebox_tools -r=StreamSlopeContinuous \
+whitebox_tools --wd=. -r=StreamSlopeContinuous \
   --d8_pntr="$HYDRO_DIR/d8_pointer.tif" \
   --streams="$OUTPUT_DIR/streams_1000.tif" \
   --dem="$HYDRO_DIR/dem_breached.tif" \
@@ -240,7 +240,7 @@ whitebox_tools -r=StreamSlopeContinuous \
 
 # Remove short streams (creating cleaned network)
 echo "  - Removing short streams (<100m)..."
-whitebox_tools -r=RemoveShortStreams \
+whitebox_tools --wd=. -r=RemoveShortStreams \
   --d8_pntr="$HYDRO_DIR/d8_pointer.tif" \
   --streams="$OUTPUT_DIR/streams_1000.tif" \
   -o="$OUTPUT_DIR/streams_cleaned.tif" \

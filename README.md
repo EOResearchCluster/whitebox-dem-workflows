@@ -84,18 +84,34 @@ Advanced morphometric analysis including terrain texture and multi-scale metrics
 
 ## Usage
 
-### Run All Workflows
+### Using Pixi Tasks (Recommended)
 ```bash
-./run_all_workflows.sh your_dem.tif
+# Install dependencies first
+pixi install
+
+# Run all workflows
+pixi run run-all
+
+# Run individual workflows
+pixi run hydrology
+pixi run geomorphometry
+pixi run stream-network
+pixi run morphometry
 ```
 
-### Run Individual Workflows
+### Direct Script Execution
 ```bash
+# Run all workflows
+./run_all_workflows.sh your_dem.tif
+
+# Run individual workflows
 ./01_hydrology.sh your_dem.tif
 ./02_geomorphometry.sh your_dem.tif
 ./03_stream_network.sh your_dem.tif
 ./04_morphometry.sh your_dem.tif
 ```
+
+> **Note for WSL users**: Use `pixi run` commands instead of direct script execution to ensure WhiteboxTools is in your PATH.
 
 ### Python Wrapper
 ```bash
