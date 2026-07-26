@@ -63,3 +63,6 @@ Thumbs.db
 # Pixi environment
 .pixi/
 pixi.lock
+
+# Local Git worktrees
+.worktrees/
