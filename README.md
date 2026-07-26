@@ -3,7 +3,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![WhiteboxTools](https://img.shields.io/badge/WhiteboxTools-Free%20Tools-green.svg)](https://www.whiteboxgeo.com/)
 
-Comprehensive geoprocessing workflows for Digital Elevation Model (DEM) analysis using WhiteboxTools. Includes automated workflows for **hydrology**, **geomorphometry**, **stream network analysis**, and **morphometry** using only free/open-source tools.
+This repository contains four WhiteboxTools-based Digital Elevation Model
+(DEM) workflows covering hydrology, geomorphometry, stream networks, and
+morphometry, with Bash entry points and Python utilities.
 
 ## Quick Start
 
@@ -38,13 +40,19 @@ pixi shell
 
 See [SETUP_GUIDE.md](SETUP_GUIDE.md) to choose the right option for you!
 
-## Features
+## Scope
 
-- **100% Free Tools**: Uses only WhiteboxTools open-source functions (no license required)
-- **Comprehensive Coverage**: 150+ derived products from a single DEM
-- **Production Ready**: Shell scripts with CLI arguments + Python wrapper
-- **High Performance**: WhiteboxTools automatically uses all CPU cores for optimal speed
-- **Well Documented**: Complete usage examples and tool descriptions
+This repository provides:
+
+- four numbered workflows: `01_hydrology.sh`, `02_geomorphometry.sh`,
+  `03_stream_network.sh`, and `04_morphometry.sh`;
+- Bash and Python entry points for sequential execution;
+- more than 100 requested primary outputs, depending on conditional steps and
+  the installed WhiteboxTools build;
+- lightweight raster inspection and plotting helpers.
+
+This is a research workflow collection, not a fully verified production
+pipeline. Review the limitations below before starting a long run.
 
 ## Documentation
 
@@ -56,22 +64,22 @@ See [SETUP_GUIDE.md](SETUP_GUIDE.md) to choose the right option for you!
 ## Workflows
 
 ### 1. Hydrology (`01_hydrology.sh`)
-Complete hydrological analysis including flow routing, watershed delineation, and topographic indices.
+Requests flow-routing, watershed, and topographic-index outputs.
 
 **Key outputs**: Depression-breached DEMs, flow direction/accumulation, basins, wetness index, stream power
 
 ### 2. Geomorphometry (`02_geomorphometry.sh`)
-Comprehensive terrain attribute analysis including slope, curvatures, roughness, and landform classification.
+Requests slope, curvature, roughness, landform, and contour outputs.
 
 **Key outputs**: Slope, aspect, hillshades, 10+ curvature types, roughness, geomorphons, contours
 
 ### 3. Stream Network Analysis (`03_stream_network.sh`)
-Detailed stream network extraction, ordering, and analysis.
+Uses hydrology outputs to extract, order, and describe stream networks.
 
 **Key outputs**: Extracted streams, stream ordering (Strahler, Horton, etc.), profiles, distance metrics
 
 ### 4. Morphometry (`04_morphometry.sh`)
-Advanced morphometric analysis including terrain texture and multi-scale metrics.
+Requests terrain-texture and multi-scale morphometric outputs.
 
 **Key outputs**: Terrain texture, topographic position (multi-scale), downslope index, upslope metrics
 
@@ -80,7 +88,7 @@ Advanced morphometric analysis including terrain texture and multi-scale metrics
 - **Pixi** (package manager): See [INSTALL.md](INSTALL.md)
 - **WhiteboxTools**: Auto-installed via pixi
 - **Bash**: Standard on macOS/Linux
-- **Python 3.11+**: Auto-installed with pixi project (for utilities)
+- **Python 3.11 or 3.12**: Auto-installed with pixi project (for utilities)
 
 ## Usage
 
@@ -98,6 +106,9 @@ pixi run geomorphometry
 pixi run stream-network
 pixi run morphometry
 ```
+
+Pixi workflow tasks use `dem.tif` in the repository root. To select another
+input path, call the Bash or Python entry points below.
 
 ### Direct Script Execution
 ```bash
@@ -125,11 +136,19 @@ pixi run morphometry
 ./run_workflows.py --workflow hydrology --dem your_dem.tif
 ```
 
-> **Note**: WhiteboxTools automatically uses all available CPU cores for each tool, 
-> so workflows run sequentially for optimal performance. Running multiple workflows 
-> simultaneously would cause CPU contention and slow things down.
+## Current Limitations
 
-### Utility Functions
+- No automated tests or CI are configured.
+- Current runners may mask an inner WhiteboxTools failure; verify logs
+  and expected output files instead of trusting the completion banner.
+- The Python wrapper currently passes incorrect positional arguments to the
+  stream-network workflow. Run `03_stream_network.sh` directly after hydrology.
+- `compare_rasters` in `utils.sh` currently fails to forward its arguments.
+- Tool availability depends on the WhiteboxTools build. Version 2.4.0 does not
+  provide every command referenced by these scripts, so check long workflows
+  with `whitebox_tools --toolhelp=ToolName`.
+
+## Utility Functions
 ```bash
 # Load utilities
 source utils.sh
@@ -145,20 +164,20 @@ workflow_status                 # See what's completed
 # List outputs
 list_outputs                    # All workflows
 list_outputs hydrology          # Specific workflow
-
-# Compare rasters
-compare_rasters dem.tif dem_breached.tif
 ```
 
 ## Output Structure
 
-```
-outputs/
-├── 01_hydrology/          # ~30 files
-├── 02_geomorphometry/     # ~50 files
-├── 03_stream_network/     # ~25 files
-└── 04_morphometry/        # ~30 files
-```
+| Directory | Contents |
+|---|---|
+| `outputs/01_hydrology/` | Flow routing, accumulation, basins, and indices |
+| `outputs/02_geomorphometry/` | Terrain attributes, curvature, and landforms |
+| `outputs/03_stream_network/` | Extracted streams, ordering, and profiles |
+| `outputs/04_morphometry/` | Multi-scale terrain and topographic metrics |
+
+Output totals vary with conditional steps, the installed WhiteboxTools build,
+and failed tools. Treat expected files—not directory counts—as completion
+criteria.
 
 ## Citation
 
@@ -185,7 +204,3 @@ MIT License - see [LICENSE](LICENSE) file for details.
 - **Issues**: Open an issue on GitHub
 - **Documentation**: See QUICKSTART.md and FIXES.md
 - **WhiteboxTools**: https://github.com/jblindsay/whitebox-tools
-
----
-
-**Made with ❤️ by EOResearchCluster**
